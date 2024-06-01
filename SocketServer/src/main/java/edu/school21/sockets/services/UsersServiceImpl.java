@@ -4,19 +4,16 @@ import edu.school21.sockets.repositories.UsersRepository;
 import edu.school21.sockets.models.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
-import java.util.UUID;
 
 @Component
 public class UsersServiceImpl implements UsersService {
     private Long id;
-    private UsersRepository<User> ur;
-
-    private PasswordEncoder encoder;
+    private final UsersRepository<User> ur;
+    private final PasswordEncoder encoder;
 
 
     @Autowired
@@ -29,15 +26,17 @@ public class UsersServiceImpl implements UsersService {
 
     @Override
     public String signUp(String name, String password) {
-        if (password.equals("")) password="0000";
         String result = "Please get another name, someone get this name before";
-        Optional<User> opt = ur.findByName(name);
-        if(!opt.isPresent()){
-            ur.save(new User(0L, name, encoder.encode(password)));
-            result = "Success";
+        if (password.isEmpty()|| name.isEmpty()){
+             result = "fields cannot be empty, please fill the fields";
+        } else {
+            Optional<User> opt = ur.findByName(name);
+            if (!opt.isPresent()) {
+                ur.save(new User(0L, name, encoder.encode(password)));
+                result = "Success";
+            }
         }
         return result;
-
     }
 
     @Override

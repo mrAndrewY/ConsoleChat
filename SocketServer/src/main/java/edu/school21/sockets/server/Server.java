@@ -1,15 +1,17 @@
 package edu.school21.sockets.server;
-import edu.school21.sockets.repositories.ChatroomRepositoryImpl;
-import edu.school21.sockets.repositories.MessagesRepository;
 import edu.school21.sockets.services.*;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import lombok.Setter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.stereotype.Component;
 
 
 import java.io.*;
@@ -17,30 +19,27 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.*;
 
-public class Server {
-    private static ApplicationContext context;
-
-    private static Socket clientSocket;
-    private static List  enteredClients;
-    private static List  chatClients;
+@Component
+@Setter
+public class Server implements ApplicationListener<ContextRefreshedEvent> {
+    private static List<ChatThreads>  enteredClients;
+    private static List<ChatThreads>  chatClients;
     private static ServerSocket server;
-
+    @Value("${server.port}")
     private int port;
-    private String driverName;
-    private static UsersService userService;
-    private static ChatroomService chatroomService;
-    private static MessagesService messagesService;
-    static{
-          context=new AnnotationConfigApplicationContext("edu.school21.sockets");
-          userService=context.getBean(UsersServiceImpl.class);
-          chatroomService=context.getBean(ChatroomServiceImpl.class);
-          messagesService = context.getBean(MessagesService.class);
-     }
+  //  private String driverName;
+    @Autowired
+    @Qualifier("usersServiceImpl")
+    private UsersService userService;
+    @Autowired
+    @Qualifier("chatroomServiceImpl")
+    private  ChatroomService chatroomService;
+    @Autowired
+    @Qualifier("messagesServiceImpl")
+    private  MessagesService messagesService;
 
-    public Server(int port){
-        this.port=port;
-    }
-    public void startServer() {
+    @Override
+    public void onApplicationEvent(ContextRefreshedEvent event) {
         try {
             try {
                 server = new ServerSocket(port);
@@ -49,7 +48,7 @@ public class Server {
 
                 while (true) {
                     Socket newSocket = server.accept();
-                    Thread newThread =  new ChatThreads(newSocket, userService, chatroomService, messagesService, chatClients);
+                    ChatThreads newThread =  new ChatThreads(newSocket, userService, chatroomService, messagesService, chatClients);
                     enteredClients.add(newThread);
                     newThread.start();
                 }

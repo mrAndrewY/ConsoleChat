@@ -1,16 +1,13 @@
 package edu.school21.sockets.app;
-import edu.school21.sockets.server.Server;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
 
 
+@SpringBootApplication
+@ComponentScan("edu.school21.sockets")
 public class Main {
     public static void main(String[] args) {
-
-        int port=0;
-        if(args.length==1) {
-            String []arg= args[0].split("=");
-            port = Integer.parseInt(arg[1]);
-        }
-        Server server = new Server(port);
-        server.startServer();
+        SpringApplication.run(Main.class, args);
         }
     }

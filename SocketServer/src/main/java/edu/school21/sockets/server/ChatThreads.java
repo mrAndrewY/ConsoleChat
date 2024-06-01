@@ -1,30 +1,26 @@
 package edu.school21.sockets.server;
 
-import com.google.inject.spi.Message;
-import edu.school21.sockets.models.Chatroom;
-import edu.school21.sockets.models.Messages;
-import edu.school21.sockets.repositories.MessagesRepository;
 import edu.school21.sockets.services.ChatroomService;
 import edu.school21.sockets.services.MessagesService;
 import edu.school21.sockets.services.UsersService;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.ArrayList;
+
 import java.util.List;
 
 
 
 public class ChatThreads extends Thread {
-    private Socket threadSocket;
-    private UsersService usersService;
-    private ChatroomService chatroomService;
-    private MessagesService messagesService;
+    private final Socket threadSocket;
+    private final UsersService usersService;
+    private final ChatroomService chatroomService;
+    private final MessagesService messagesService;
     private long chatNumber;
     private  BufferedReader in;
     private  BufferedWriter out;
     String userName;
-    private List<ChatThreads> chatClients;
+    private final List<ChatThreads> chatClients;
     public ChatThreads(Socket threadSocket, UsersService us, ChatroomService chS, MessagesService mService, List<ChatThreads> chatClients) {
         this.threadSocket=threadSocket;
         usersService=us;
@@ -58,8 +54,7 @@ public class ChatThreads extends Thread {
                     }
                 }
                 if (res!=null&&res.equals("2")) {
-                    if(signUpCommand()){
-                    }
+                    signUpCommand();
                 }
 
                 if (res==null||res.equals("3")) {
@@ -183,9 +178,6 @@ public class ChatThreads extends Thread {
             }
             }
         }
-
-
-
 
     }
 
